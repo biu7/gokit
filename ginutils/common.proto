@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option go_package = "github.com/biu7/gokit-qi/ginutils";
+
+import "google/protobuf/any.proto";
+
+message CommonResponse {
+  int32 code = 1;
+  string message = 2;
+  google.protobuf.Any data = 3;
+}
