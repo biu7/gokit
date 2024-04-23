@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package ginutils;
+
 option go_package = "github.com/biu7/gokit-qi/ginutils";
 
 import "google/protobuf/any.proto";
