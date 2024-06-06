@@ -30,7 +30,7 @@ func (g *Middleware) Log(values ...ValuerFunc) gin.HandlerFunc {
 			status = c.Writer.Status()
 			msg    string
 		)
-		if respStatus, ok := c.Get(ctxKeyResponse); ok {
+		if respStatus, ok := c.Get(ContextResponse); ok {
 			if commonResp, ok := respStatus.(*CommonResponse); ok {
 				status = int(commonResp.GetCode())
 				msg = commonResp.GetMessage()
@@ -82,7 +82,7 @@ func (g *Middleware) Log(values ...ValuerFunc) gin.HandlerFunc {
 func (g *Middleware) Cors() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		method := c.Request.Method
-		origin := c.Request.Header.Get("Origin") //请求头部
+		origin := c.Request.Header.Get("Origin") // 请求头部
 		if origin != "" {
 			c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 			c.Header("Access-Control-Allow-Methods", "*")
@@ -91,7 +91,7 @@ func (g *Middleware) Cors() gin.HandlerFunc {
 			c.Header("Access-Control-Allow-Credentials", "true")
 		}
 
-		//允许类型校验
+		// 允许类型校验
 		if method == "OPTIONS" {
 			c.JSON(http.StatusOK, "ok!")
 		}

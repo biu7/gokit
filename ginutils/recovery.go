@@ -2,6 +2,7 @@ package ginutils
 
 import (
 	"errors"
+	"github.com/biu7/gokit-qi/ginutils/response"
 	"github.com/gin-gonic/gin"
 	"net"
 	"net/http"
@@ -60,7 +61,7 @@ func (g *Middleware) Recovery() gin.HandlerFunc {
 
 func defaultHandleRecovery(c *gin.Context, err interface{}) {
 	if _, ok := err.(error); ok {
-		ProtoJSON(c, http.StatusBadRequest, nil, err.(error).Error())
+		response.ProtoJSON(c, http.StatusBadRequest, nil, err.(error).Error())
 		c.Abort()
 		return
 	}
