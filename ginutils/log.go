@@ -2,6 +2,7 @@ package ginutils
 
 import (
 	"bytes"
+	"github.com/biu7/gokit-qi/ginutils/response"
 	"io"
 	"net/http"
 	"strings"
@@ -27,14 +28,14 @@ func (g *Middleware) Log(values ...ValuerFunc) gin.HandlerFunc {
 		latency := end.Sub(start)
 
 		var (
-			status = c.Writer.Status()
+			status = int32(c.Writer.Status())
 			msg    string
 		)
-		if respStatus, ok := c.Get(ContextResponse); ok {
-			if commonResp, ok := respStatus.(*CommonResponse); ok {
-				status = int(commonResp.GetCode())
-				msg = commonResp.GetMessage()
-			}
+
+		respStatus, message := response.GetResponseStatus(c)
+		if respStatus != 0 {
+			status = respStatus
+			msg = message
 		}
 
 		fields := []any{

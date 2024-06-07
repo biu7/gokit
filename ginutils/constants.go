@@ -6,7 +6,6 @@ const (
 	ContextUserID   = "user_id"
 	ContextDeviceID = "device_id"
 	ContextPlatform = "platform"
-	ContextResponse = "gin_response"
 )
 
 func SetStrUserID(c *gin.Context, userID string) {

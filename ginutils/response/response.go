@@ -1,13 +1,16 @@
 package response
 
 import (
-	"github.com/biu7/gokit-qi/ginutils"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"net/http"
+)
+
+const (
+	ContextResponse = "gin_response"
 )
 
 const (
@@ -24,7 +27,7 @@ var marshaller = protojson.MarshalOptions{
 
 func ProtoJSON(c *gin.Context, code int, data proto.Message, msg string) {
 	// for logging
-	c.Set(ginutils.ContextResponse, &ginutils.CommonResponse{
+	c.Set(ContextResponse, &CommonResponse{
 		Code:    int32(code),
 		Message: msg,
 	})
@@ -32,7 +35,7 @@ func ProtoJSON(c *gin.Context, code int, data proto.Message, msg string) {
 	if data != nil {
 		anyData, _ = anypb.New(data)
 	}
-	b, _ := marshaller.Marshal(&ginutils.CommonResponse{
+	b, _ := marshaller.Marshal(&CommonResponse{
 		Code:    int32(code),
 		Message: msg,
 		Data:    anyData,
@@ -54,4 +57,23 @@ func Fail(c *gin.Context, err error) {
 
 func AuthFail(c *gin.Context, err error) {
 	ProtoJSON(c, CodeAuthError, nil, err.Error())
+}
+
+func SetResponseStatus(c *gin.Context, code int, msg string) {
+	c.Set(ContextResponse, &CommonResponse{
+		Code:    int32(code),
+		Message: msg,
+	})
+}
+
+func GetResponseStatus(c *gin.Context) (int32, string) {
+	respStatus, ok := c.Get(ContextResponse)
+	if !ok {
+		return 0, ""
+	}
+	commonResp, ok := respStatus.(*CommonResponse)
+	if !ok {
+		return 0, ""
+	}
+	return commonResp.GetCode(), commonResp.GetMessage()
 }

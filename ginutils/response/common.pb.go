@@ -4,7 +4,7 @@
 // 	protoc        v3.21.12
 // source: ginutils/common.proto
 
-package ginutils
+package response
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
