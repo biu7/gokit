@@ -6,7 +6,6 @@ import (
 	"github.com/biu7/gokit-qi/ginutils/response"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"strings"
 )
 
 var (
@@ -16,13 +15,7 @@ var (
 
 func UserAuth(logto *Logto) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenStr := c.Request.Header.Get("Authorization")
-		if tokenStr == "" {
-			response.AuthFail(c, ErrMissingToken)
-			c.Abort()
-			return
-		}
-		tokenStr = strings.TrimSuffix(tokenStr, "Bearer ")
+		tokenStr := ginutils.GetToken(c)
 		token, err := logto.Parse(tokenStr)
 		if err != nil {
 			response.AuthFail(c, ErrInvalidToken)
