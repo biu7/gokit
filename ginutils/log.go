@@ -51,7 +51,7 @@ func (g *Middleware) Log(values ...ValuerFunc) gin.HandlerFunc {
 		}
 		var headers = make(map[string][]string)
 		for k, v := range c.Request.Header {
-			if strings.HasPrefix(strings.ToLower(k), "x-meokii") {
+			if strings.HasPrefix(strings.ToLower(k), "x-wx") {
 				headers[k] = v
 			}
 		}
