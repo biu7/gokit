@@ -61,7 +61,7 @@ func (g *Middleware) Recovery() gin.HandlerFunc {
 
 func defaultHandleRecovery(c *gin.Context, err interface{}) {
 	if _, ok := err.(error); ok {
-		response.ProtoJSON(c, http.StatusBadRequest, nil, err.(error).Error())
+		response.Fail(c, err.(error))
 		c.Abort()
 		return
 	}

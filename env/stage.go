@@ -11,11 +11,7 @@ const (
 )
 
 func Stage() string {
-	env := os.Getenv(StageKey)
-	if env == "" {
-		return StageDebug
-	}
-	return env
+	return os.Getenv(StageKey)
 }
 
 func Prod() bool {
