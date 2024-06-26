@@ -21,5 +21,5 @@ func GetToken(c *gin.Context) string {
 	if tokenStr == "" {
 		return ""
 	}
-	return strings.TrimSuffix(tokenStr, "Bearer ")
+	return strings.TrimPrefix(tokenStr, "Bearer ")
 }

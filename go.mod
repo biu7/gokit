@@ -4,10 +4,12 @@ go 1.22.0
 
 require (
 	github.com/MicahParks/keyfunc/v3 v3.3.3
+	github.com/bsm/redislock v0.9.4
 	github.com/gin-gonic/gin v1.9.1
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/redis/go-redis/extra/redisotel/v9 v9.0.5
 	github.com/redis/go-redis/v9 v9.5.1
+	github.com/spf13/cast v1.6.0
 	github.com/wagslane/go-rabbitmq v0.13.0
 	go.opentelemetry.io/otel/trace v1.24.0
 	google.golang.org/protobuf v1.33.0
@@ -36,6 +38,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/rabbitmq/amqp091-go v1.7.0 // indirect
 	github.com/redis/go-redis/extra/rediscmd/v9 v9.0.5 // indirect
+	github.com/stretchr/testify v1.9.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	go.opentelemetry.io/otel v1.24.0 // indirect
