@@ -2,6 +2,7 @@ package response
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/go-kratos/kratos/v2/errors"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"net/http"
@@ -36,13 +37,26 @@ func Success(c *gin.Context, body proto.Message) {
 	Protobuf(c, CodeOK, body, "success")
 }
 
-func Fail(c *gin.Context, err error) {
-	Protobuf(c, CodeError, nil, err.Error())
+func errMessage(err error) (int, string) {
+	if kErr := errors.FromError(err); kErr != nil {
+		if kErr.GetCode() != errors.UnknownCode && kErr.GetCode() != 0 {
+			return int(kErr.GetCode()), kErr.GetMessage()
+		}
+		return CodeError, kErr.GetMessage()
+	}
+	return CodeError, "unknown error"
 }
 
-func AuthFail(c *gin.Context, err error) {
-	Protobuf(c, CodeAuthError, nil, err.Error())
+func Fail(c *gin.Context, err error) {
+	code, message := errMessage(err)
+	Protobuf(c, code, nil, message)
 }
+
+//
+// func AuthFail(c *gin.Context, err error) {
+// 	_, message := errMessage(err)
+// 	Protobuf(c, CodeAuthError, nil, message)
+// }
 
 func SetResponseStatus(c *gin.Context, code int, msg string) {
 	c.Set(ContextResponse, &CommonResponse{
