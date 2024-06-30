@@ -2,7 +2,9 @@ package response
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/render"
 	"github.com/go-kratos/kratos/v2/errors"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 	"net/http"
@@ -18,7 +20,13 @@ const (
 	CodeAuthError = http.StatusUnauthorized
 )
 
-func Protobuf(c *gin.Context, code int, data proto.Message, msg string) {
+var marshaller = protojson.MarshalOptions{
+	AllowPartial:      true,
+	UseEnumNumbers:    true,
+	EmitDefaultValues: true,
+}
+
+func ProtoJson(c *gin.Context, code int, data proto.Message, msg string) {
 	// 日志记录
 	SetResponseStatus(c, code, msg)
 
@@ -26,15 +34,21 @@ func Protobuf(c *gin.Context, code int, data proto.Message, msg string) {
 	if data != nil {
 		anyData, _ = anypb.New(data)
 	}
-	c.ProtoBuf(http.StatusOK, &CommonResponse{
+	resp := &CommonResponse{
 		Code:    int32(code),
 		Message: msg,
 		Data:    anyData,
+	}
+	b, _ := marshaller.Marshal(resp)
+	c.Writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+	c.Render(http.StatusOK, render.String{
+		Format: "%s",
+		Data:   []any{string(b)},
 	})
 }
 
 func Success(c *gin.Context, body proto.Message) {
-	Protobuf(c, CodeOK, body, "success")
+	ProtoJson(c, CodeOK, body, "success")
 }
 
 func errMessage(err error) (int, string) {
@@ -49,14 +63,8 @@ func errMessage(err error) (int, string) {
 
 func Fail(c *gin.Context, err error) {
 	code, message := errMessage(err)
-	Protobuf(c, code, nil, message)
+	ProtoJson(c, code, nil, message)
 }
-
-//
-// func AuthFail(c *gin.Context, err error) {
-// 	_, message := errMessage(err)
-// 	Protobuf(c, CodeAuthError, nil, message)
-// }
 
 func SetResponseStatus(c *gin.Context, code int, msg string) {
 	c.Set(ContextResponse, &CommonResponse{
