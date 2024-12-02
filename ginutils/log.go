@@ -2,7 +2,8 @@ package ginutils
 
 import (
 	"bytes"
-	"github.com/biu7/gokit-qi/ginutils/response"
+	"github.com/biu7/gokit/ctxvalue"
+	"github.com/biu7/gokit/ginutils/response"
 	"io"
 	"net/http"
 	"strings"
@@ -31,7 +32,6 @@ func (g *Middleware) Log(values ...ValuerFunc) gin.HandlerFunc {
 			status = int32(c.Writer.Status())
 			msg    string
 		)
-
 		respStatus, message := response.GetResponseStatus(c)
 		if respStatus != 0 {
 			status = respStatus
@@ -42,16 +42,18 @@ func (g *Middleware) Log(values ...ValuerFunc) gin.HandlerFunc {
 			"time", end.Format(time.RFC3339),
 			"method", c.Request.Method,
 			"path", c.Request.URL.Path,
+			"http_code", c.Writer.Status(),
 			"status", status,
 			"message", msg,
 			"query", c.Request.URL.RawQuery,
 			"ip", c.ClientIP(),
 			"user-agent", c.Request.UserAgent(),
 			"latency", latency,
+			"userID", ctxvalue.GetUserID(c),
 		}
 		var headers = make(map[string][]string)
 		for k, v := range c.Request.Header {
-			if strings.HasPrefix(strings.ToLower(k), "x-wx") {
+			if strings.HasPrefix(strings.ToLower(k), "x-meokii") {
 				headers[k] = v
 			}
 		}
@@ -87,7 +89,7 @@ func (g *Middleware) Cors() gin.HandlerFunc {
 		if origin != "" {
 			c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 			c.Header("Access-Control-Allow-Methods", "*")
-			c.Header("Access-Control-Allow-Headers", "Authorization, Content-Length, Content-Type")
+			c.Header("Access-Control-Allow-Headers", "Authorization, Content-Length, Content-Type, X-Meokii-Openid")
 			c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers")
 			c.Header("Access-Control-Allow-Credentials", "true")
 		}

@@ -1,17 +1,14 @@
 package response
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"
 	"github.com/go-kratos/kratos/v2/errors"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
-	"net/http"
-)
-
-const (
-	ContextResponse = "gin_response"
 )
 
 const (
@@ -20,35 +17,35 @@ const (
 	CodeAuthError = http.StatusUnauthorized
 )
 
+const (
+	ContextResponse = "gin_response"
+)
+
 var marshaller = protojson.MarshalOptions{
 	AllowPartial:      true,
 	UseEnumNumbers:    true,
 	EmitDefaultValues: true,
 }
 
-func ProtoJson(c *gin.Context, code int, data proto.Message, msg string) {
-	// 日志记录
-	SetResponseStatus(c, code, msg)
-
-	var anyData *anypb.Any
-	if data != nil {
-		anyData, _ = anypb.New(data)
-	}
+func ProtoJSON(c *gin.Context, code int, data proto.Message, msg string) {
 	resp := &CommonResponse{
 		Code:    int32(code),
 		Message: msg,
-		Data:    anyData,
 	}
+	if data != nil {
+		anyData, _ := anypb.New(data)
+		resp.Data = anyData
+	}
+
+	// for logging
+	SetResponseStatus(c, resp.GetCode(), resp.GetMessage())
+
 	b, _ := marshaller.Marshal(resp)
 	c.Writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 	c.Render(http.StatusOK, render.String{
 		Format: "%s",
 		Data:   []any{string(b)},
 	})
-}
-
-func Success(c *gin.Context, body proto.Message) {
-	ProtoJson(c, CodeOK, body, "success")
 }
 
 func errMessage(err error) (int, string) {
@@ -61,14 +58,9 @@ func errMessage(err error) (int, string) {
 	return CodeError, "unknown error"
 }
 
-func Fail(c *gin.Context, err error) {
-	code, message := errMessage(err)
-	ProtoJson(c, code, nil, message)
-}
-
-func SetResponseStatus(c *gin.Context, code int, msg string) {
+func SetResponseStatus(c *gin.Context, code int32, msg string) {
 	c.Set(ContextResponse, &CommonResponse{
-		Code:    int32(code),
+		Code:    code,
 		Message: msg,
 	})
 }
@@ -83,4 +75,19 @@ func GetResponseStatus(c *gin.Context) (int32, string) {
 		return 0, ""
 	}
 	return commonResp.GetCode(), commonResp.GetMessage()
+}
+
+func Success(c *gin.Context, body proto.Message) {
+	ProtoJSON(c, CodeOK, body, "success")
+}
+
+func Fail(c *gin.Context, err error) {
+	_, message := errMessage(err)
+	ProtoJSON(c, CodeError, nil, message)
+}
+
+func AuthFail(c *gin.Context, err error) {
+	_, message := errMessage(err)
+
+	ProtoJSON(c, CodeAuthError, nil, message)
 }

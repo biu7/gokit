@@ -1,7 +1,7 @@
 package ginutils
 
 import (
-	"github.com/biu7/gokit-qi/log"
+	"github.com/biu7/gokit/log"
 	"github.com/gin-gonic/gin"
 	"strings"
 )

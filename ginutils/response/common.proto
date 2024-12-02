@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package ginutils;
 
-option go_package = "github.com/biu7/gokit-qi/ginutils";
+option go_package = "github.com/biu7/gokit/ginutils";
 
 import "google/protobuf/any.proto";
 

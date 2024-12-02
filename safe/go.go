@@ -2,7 +2,7 @@ package safe
 
 import (
 	"context"
-	"github.com/biu7/gokit-qi/log"
+	"github.com/biu7/gokit/log"
 	"runtime/debug"
 )
 

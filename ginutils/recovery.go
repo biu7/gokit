@@ -2,12 +2,13 @@ package ginutils
 
 import (
 	"errors"
-	"github.com/biu7/gokit-qi/ginutils/response"
+	"github.com/biu7/gokit/ginutils/response"
 	"github.com/gin-gonic/gin"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"os"
+	"runtime/debug"
 	"strings"
 	"time"
 )
@@ -47,11 +48,12 @@ func (g *Middleware) Recovery() gin.HandlerFunc {
 						return
 					}
 				}
-
 				g.logger.Ctx(c).Error("[Recovery from panic]",
 					"time", time.Now(),
 					"error", rec,
-					"request", string(httpRequest))
+					"stack", string(debug.Stack()),
+					"request", string(httpRequest),
+				)
 				defaultHandleRecovery(c, rec)
 			}
 		}()

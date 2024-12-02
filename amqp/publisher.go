@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/biu7/gokit-qi/log"
+	"github.com/biu7/gokit/log"
 
 	"github.com/wagslane/go-rabbitmq"
 )
