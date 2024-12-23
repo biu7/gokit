@@ -1,4 +1,4 @@
-package zip
+package gozip
 
 import (
 	"archive/zip"
@@ -17,7 +17,7 @@ func Unzip(input, output string) ([]string, error) {
 	}
 	defer func() {
 		if closeErr := archive.Close(); closeErr != nil {
-			log.Default.Error("[unzip] close zip file error", "error", err)
+			log.Default.Error("[unzip] close gozip file error", "error", err)
 		}
 	}()
 
@@ -27,7 +27,7 @@ func Unzip(input, output string) ([]string, error) {
 	}
 
 	var files []string
-	// 遍历 zip 文件内的所有文件和目录
+	// 遍历 gozip 文件内的所有文件和目录
 	for _, file := range archive.File {
 		err = extractFile(output, file)
 		if err != nil {
