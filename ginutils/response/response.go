@@ -78,7 +78,7 @@ func GetResponseStatus(c *gin.Context) (int32, string) {
 }
 
 func Success(c *gin.Context, body proto.Message) {
-	ProtoJSON(c, CodeOK, body, "success")
+	ProtoJSON(c, CodeOK, body, "")
 }
 
 func Fail(c *gin.Context, err error) {
