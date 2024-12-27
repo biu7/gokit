@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	CodeOK        = http.StatusOK
+	CodeOK        = 0
 	CodeError     = http.StatusBadRequest
 	CodeAuthError = http.StatusUnauthorized
 )
