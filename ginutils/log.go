@@ -89,7 +89,7 @@ func (g *Middleware) Cors() gin.HandlerFunc {
 		if origin != "" {
 			c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 			c.Header("Access-Control-Allow-Methods", "*")
-			c.Header("Access-Control-Allow-Headers", "Authorization, Content-Length, Content-Type, X-Meokii-Openid")
+			c.Header("Access-Control-Allow-Headers", "Authorization, Content-Length, Content-Type, X-Meokii-Openid, X-Requested-With")
 			c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers")
 			c.Header("Access-Control-Allow-Credentials", "true")
 		}
