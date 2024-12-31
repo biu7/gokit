@@ -10,10 +10,6 @@ import (
 	"strings"
 )
 
-type QueueMessage[T any] struct {
-	Body T `json:"body"`
-}
-
 type ReceiveMessage struct {
 	ID   string `json:"id"`
 	Body string `json:"body"`
