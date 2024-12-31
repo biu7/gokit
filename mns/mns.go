@@ -11,8 +11,8 @@ import (
 	"strings"
 )
 
-type QueueMessage struct {
-	Body any `json:"body"`
+type QueueMessage[T any] struct {
+	Body T `json:"body"`
 }
 
 type ReceiveMessage struct {
@@ -42,7 +42,7 @@ func (q *Queue) Name() string {
 	return q.name
 }
 
-func (q *Queue) Send(msg *QueueMessage) (string, error) {
+func (q *Queue) Send(msg *QueueMessage[any]) (string, error) {
 	data, err := json.Marshal(msg)
 	if err != nil {
 		return "", fmt.Errorf("could not marshal message: %w", err)
