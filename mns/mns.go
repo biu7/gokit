@@ -3,7 +3,6 @@ package mns
 import (
 	"context"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	mns "github.com/aliyun/aliyun-mns-go-sdk"
 	"github.com/biu7/gokit/log"
@@ -42,13 +41,9 @@ func (q *Queue) Name() string {
 	return q.name
 }
 
-func (q *Queue) Send(msg *QueueMessage[any]) (string, error) {
-	data, err := json.Marshal(msg)
-	if err != nil {
-		return "", fmt.Errorf("could not marshal message: %w", err)
-	}
+func (q *Queue) Send(message string) (string, error) {
 	result, err := q.queue.SendMessage(mns.MessageSendRequest{
-		MessageBody: base64.StdEncoding.EncodeToString(data),
+		MessageBody: base64.StdEncoding.EncodeToString([]byte(message)),
 		Priority:    10,
 	})
 	if err != nil {
