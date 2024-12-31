@@ -8,6 +8,7 @@ import (
 	mns "github.com/aliyun/aliyun-mns-go-sdk"
 	"github.com/biu7/gokit/log"
 	"github.com/biu7/gokit/safe"
+	"strings"
 )
 
 type QueueMessage struct {
@@ -84,6 +85,9 @@ func (q *Queue) processReceive(ctx context.Context, respChan chan mns.MessageRec
 				continue
 			}
 		case err := <-errChan:
+			if strings.Contains(err.Error(), "MessageNotExist") {
+				continue
+			}
 			log.Error("receive mns message error", "error", err, "queue", q.name)
 		case <-ctx.Done():
 			return
