@@ -63,10 +63,7 @@ func (q *Queue) processReceive(ctx context.Context, respChan chan mns.MessageRec
 	for {
 		select {
 		case resp := <-respChan:
-			err := f(ReceiveMessage{
-				ID:   resp.MessageId,
-				Body: resp.MessageBody,
-			})
+			err := q.safeCall(resp, f)
 			if err != nil {
 				log.Error("[MNS] consume mns msg error", "error", err, "msgId", resp.MessageId, "queue", q.name)
 				continue
