@@ -72,18 +72,41 @@ func (q *Queue) processReceive(ctx context.Context, respChan chan mns.MessageRec
 				continue
 			}
 			if err = q.queue.DeleteMessage(resp.ReceiptHandle); err != nil {
-				log.Error("delete mns message error", "error", err, "msgId", resp.MessageId, "queue", q.name)
+				log.Error("[MNS] delete mns message error", "error", err, "msgId", resp.MessageId, "queue", q.name)
 				continue
 			}
 		case err := <-errChan:
 			if strings.Contains(err.Error(), "MessageNotExist") {
 				continue
 			}
-			log.Error("receive mns message error", "error", err, "queue", q.name)
+			log.Error("[MNS] receive mns message error", "error", err, "queue", q.name)
 		case <-ctx.Done():
 			return
 		}
 	}
+}
+
+func (q *Queue) safeCall(resp mns.MessageReceiveResponse, f func(ReceiveMessage) error) (err error) {
+	// 添加recover
+	defer func() {
+		if r := recover(); r != nil {
+			log.Error("[MNS] panic", "error", r)
+			// 将panic转换为error
+			switch x := r.(type) {
+			case string:
+				err = fmt.Errorf("panic: %s", x)
+			case error:
+				err = fmt.Errorf("panic: %w", x)
+			default:
+				err = fmt.Errorf("panic: %v", x)
+			}
+		}
+	}()
+
+	return f(ReceiveMessage{
+		ID:   resp.MessageId,
+		Body: resp.MessageBody,
+	})
 }
 
 func (q *Queue) receive(ctx context.Context, respChan chan mns.MessageReceiveResponse, errChan chan error) {
