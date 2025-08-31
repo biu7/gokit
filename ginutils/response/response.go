@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin/render"
 	"github.com/go-kratos/kratos/v2/errors"
 	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/anypb"
 )
 
 const (
@@ -21,18 +20,23 @@ const (
 	ContextResponse = "gin_response"
 )
 
+type CommonResponse struct {
+	Code    int32  `json:"code"`
+	Message string `json:"message"`
+	Data    any    `json:"data,omitempty"`
+}
+
 func ProtoJSON(c *gin.Context, code int, data proto.Message, msg string) {
 	resp := &CommonResponse{
 		Code:    int32(code),
 		Message: msg,
 	}
 	if data != nil {
-		anyData, _ := anypb.New(data)
-		resp.Data = anyData
+		resp.Data = data
 	}
 
 	// for logging
-	SetResponseStatus(c, resp.GetCode(), resp.GetMessage())
+	SetResponseStatus(c, resp.Code, resp.Message)
 
 	b, _ := json.Marshal(resp)
 	c.Writer.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -68,7 +72,7 @@ func GetResponseStatus(c *gin.Context) (int32, string) {
 	if !ok {
 		return 0, ""
 	}
-	return commonResp.GetCode(), commonResp.GetMessage()
+	return commonResp.Code, commonResp.Message
 }
 
 func Success(c *gin.Context, body proto.Message) {
