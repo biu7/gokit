@@ -3,10 +3,10 @@ package response
 import (
 	"net/http"
 
+	"github.com/biu7/gokit/json"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"
 	"github.com/go-kratos/kratos/v2/errors"
-	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
 )
@@ -21,12 +21,6 @@ const (
 	ContextResponse = "gin_response"
 )
 
-var marshaller = protojson.MarshalOptions{
-	AllowPartial:      true,
-	UseEnumNumbers:    true,
-	EmitDefaultValues: true,
-}
-
 func ProtoJSON(c *gin.Context, code int, data proto.Message, msg string) {
 	resp := &CommonResponse{
 		Code:    int32(code),
@@ -40,7 +34,7 @@ func ProtoJSON(c *gin.Context, code int, data proto.Message, msg string) {
 	// for logging
 	SetResponseStatus(c, resp.GetCode(), resp.GetMessage())
 
-	b, _ := marshaller.Marshal(resp)
+	b, _ := json.Marshal(resp)
 	c.Writer.Header().Set("Content-Type", "application/json; charset=utf-8")
 	c.Render(http.StatusOK, render.String{
 		Format: "%s",
