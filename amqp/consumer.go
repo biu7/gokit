@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/biu7/gokit/log"
-
 	"github.com/wagslane/go-rabbitmq"
 )
 
@@ -16,7 +15,7 @@ type Consumer struct {
 }
 
 func NewConsumer(conf *Config) (*Consumer, error) {
-	logger := NewLogger(log.Default)
+	logger := newLogAdapter(log.Default)
 
 	conn, err := rabbitmq.NewConn(
 		fmt.Sprintf("amqp://%s:%s@%s/%s", conf.Username, conf.Password, conf.Endpoint, conf.Vhost),
@@ -63,10 +62,10 @@ func (c *Consumer) Consume(exchange, queue string, keys []string, handler rabbit
 }
 
 func (c *Consumer) Close() {
-	log.Info("[AMQP] consumer closing")
+	c.log.Infof("consumer closing")
 	for _, consumer := range c.consumers {
 		consumer.Close()
 	}
 	// c.conn.Close()
-	log.Info("[AMQP] consumer closed")
+	c.log.Infof("consumer closed")
 }

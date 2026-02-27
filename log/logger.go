@@ -23,41 +23,41 @@ type Logger interface {
 }
 
 func NewLogger(level Level) Logger {
-	return NewSlog(level, nil)
+	return newSlogLogger(level, nil)
 }
 
 type logger struct {
-	logger    Logger
+	inner     Logger
 	prefix    []interface{}
 	hasValuer bool
 	ctx       context.Context
 }
 
-func (c *logger) Ctx(ctx context.Context) Logger {
-	return WithContext(ctx, c)
+func (l *logger) Ctx(ctx context.Context) Logger {
+	return WithContext(ctx, l)
 }
 
-func (c *logger) Debug(msg string, args ...any) {
-	c.logger.Debug(msg, c.bindArgs(args)...)
+func (l *logger) Debug(msg string, args ...any) {
+	l.inner.Debug(msg, l.bindArgs(args)...)
 }
 
-func (c *logger) Info(msg string, args ...any) {
-	c.logger.Info(msg, c.bindArgs(args)...)
+func (l *logger) Info(msg string, args ...any) {
+	l.inner.Info(msg, l.bindArgs(args)...)
 }
 
-func (c *logger) Warn(msg string, args ...any) {
-	c.logger.Warn(msg, c.bindArgs(args)...)
+func (l *logger) Warn(msg string, args ...any) {
+	l.inner.Warn(msg, l.bindArgs(args)...)
 }
 
-func (c *logger) Error(msg string, args ...any) {
-	c.logger.Error(msg, c.bindArgs(args)...)
+func (l *logger) Error(msg string, args ...any) {
+	l.inner.Error(msg, l.bindArgs(args)...)
 }
 
-func (c *logger) bindArgs(args []any) []any {
-	kvs := make([]any, 0, len(c.prefix)+len(args))
-	kvs = append(kvs, c.prefix...)
-	if c.hasValuer {
-		bindValues(c.ctx, kvs)
+func (l *logger) bindArgs(args []any) []any {
+	kvs := make([]any, 0, len(l.prefix)+len(args))
+	kvs = append(kvs, l.prefix...)
+	if l.hasValuer {
+		bindValues(l.ctx, kvs)
 	}
 	kvs = append(kvs, args...)
 	return kvs
@@ -66,13 +66,13 @@ func (c *logger) bindArgs(args []any) []any {
 func With(l Logger, args ...any) Logger {
 	c, ok := l.(*logger)
 	if !ok {
-		return &logger{logger: l, prefix: args, hasValuer: containsValuer(args), ctx: context.Background()}
+		return &logger{inner: l, prefix: args, hasValuer: containsValuer(args), ctx: context.Background()}
 	}
 	kvs := make([]interface{}, 0, len(c.prefix)+len(args))
 	kvs = append(kvs, c.prefix...)
 	kvs = append(kvs, args...)
 	return &logger{
-		logger:    c.logger,
+		inner:     c.inner,
 		prefix:    kvs,
 		hasValuer: containsValuer(kvs),
 		ctx:       c.ctx,
@@ -83,11 +83,11 @@ func WithContext(ctx context.Context, l Logger) Logger {
 	c, ok := l.(*logger)
 	if ok {
 		return &logger{
-			logger:    c.logger,
+			inner:     c.inner,
 			prefix:    c.prefix,
 			hasValuer: c.hasValuer,
 			ctx:       ctx,
 		}
 	}
-	return &logger{logger: l, ctx: ctx}
+	return &logger{inner: l, ctx: ctx}
 }

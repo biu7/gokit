@@ -42,8 +42,7 @@ func (g *Middleware) Recovery() gin.HandlerFunc {
 							"path", c.Request.URL.Path,
 							"error", err,
 							"request", string(httpRequest))
-						// If the connection is dead, we can't write a statusfrtgdk,,,,,,,,,m to it.
-						_ = c.Error(err.(error))
+					_ = c.Error(err)
 						c.Abort()
 						return
 					}

@@ -62,7 +62,7 @@ func SetPlatform(ctx context.Context, platform string) context.Context {
 	return context.WithValue(ctx, ContextPlatform, platform)
 }
 
-func GetContextWechatOpenID(ctx context.Context) string {
+func GetWechatOpenID(ctx context.Context) string {
 	if ginCtx, ok := ctx.(*gin.Context); ok {
 		val, exists := ginCtx.Get(ContextWechatOpenID)
 		if exists {
@@ -72,7 +72,7 @@ func GetContextWechatOpenID(ctx context.Context) string {
 	return cast.ToString(ctx.Value(ContextWechatOpenID))
 }
 
-func SetContextWechatOpenID(ctx context.Context, openid string) context.Context {
+func SetWechatOpenID(ctx context.Context, openid string) context.Context {
 	if ginCtx, ok := ctx.(*gin.Context); ok {
 		ginCtx.Set(ContextWechatOpenID, openid)
 		return ginCtx
@@ -90,7 +90,7 @@ func GetPlatform(ctx context.Context) string {
 	return cast.ToString(ctx.Value(ContextPlatform))
 }
 
-func SetLanguage(ctx context.Context, lang language.Tag) context.Context {
+func SetLang(ctx context.Context, lang language.Tag) context.Context {
 	if ginCtx, ok := ctx.(*gin.Context); ok {
 		ginCtx.Set(ContextLang, lang)
 		return ginCtx
@@ -98,7 +98,7 @@ func SetLanguage(ctx context.Context, lang language.Tag) context.Context {
 	return context.WithValue(ctx, ContextLang, lang)
 }
 
-func GetContextLang(ctx context.Context, def language.Tag) language.Tag {
+func GetLang(ctx context.Context, def language.Tag) language.Tag {
 	var val any
 	if ginCtx, ok := ctx.(*gin.Context); ok {
 		v, exists := ginCtx.Get(ContextLang)
@@ -117,7 +117,7 @@ func GetContextLang(ctx context.Context, def language.Tag) language.Tag {
 	return def
 }
 
-func SetContextVersion(ctx context.Context, version int32) context.Context {
+func SetVersion(ctx context.Context, version int32) context.Context {
 	if ginCtx, ok := ctx.(*gin.Context); ok {
 		ginCtx.Set(ContextVersion, version)
 		return ginCtx
@@ -125,7 +125,7 @@ func SetContextVersion(ctx context.Context, version int32) context.Context {
 	return context.WithValue(ctx, ContextVersion, version)
 }
 
-func GetContextVersion(ctx context.Context) int32 {
+func GetVersion(ctx context.Context) int32 {
 	if ginCtx, ok := ctx.(*gin.Context); ok {
 		val, exists := ginCtx.Get(ContextVersion)
 		if exists {

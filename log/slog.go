@@ -9,42 +9,24 @@ import (
 	"time"
 )
 
-var _ Logger = (*Slog)(nil)
+var _ Logger = (*slogLogger)(nil)
 
-var slogLevels = map[Level]slog.Level{
-	LevelDebug: slog.LevelDebug,
-	LevelInfo:  slog.LevelInfo,
-	LevelWarn:  slog.LevelWarn,
-	LevelError: slog.LevelError,
+type slogLogger struct {
+	logger *slog.Logger
 }
 
-type Slog struct {
-	logger    *slog.Logger
-	addSource bool
-}
-
-func NewSlog(level Level, writer io.Writer) Logger {
+func newSlogLogger(level Level, writer io.Writer) Logger {
 	if writer == nil {
 		writer = os.Stderr
 	}
-	return &Slog{
+	return &slogLogger{
 		logger: slog.New(slog.NewJSONHandler(writer, &slog.HandlerOptions{
-			//AddSource: true,
 			Level: slog.Level(level),
 		})),
-		addSource: false,
 	}
 }
 
-func (s *Slog) level(level Level) slog.Level {
-	lv, ok := slogLevels[level]
-	if ok {
-		return lv
-	}
-	return slog.LevelInfo
-}
-
-func (s *Slog) log(level slog.Level, msg string, args ...any) {
+func (s *slogLogger) log(level slog.Level, msg string, args ...any) {
 	if !s.logger.Enabled(context.Background(), level) {
 		return
 	}
@@ -56,22 +38,22 @@ func (s *Slog) log(level slog.Level, msg string, args ...any) {
 	_ = s.logger.Handler().Handle(context.Background(), r)
 }
 
-func (s *Slog) Debug(msg string, args ...any) {
+func (s *slogLogger) Debug(msg string, args ...any) {
 	s.log(slog.LevelDebug, msg, args...)
 }
 
-func (s *Slog) Info(msg string, args ...any) {
+func (s *slogLogger) Info(msg string, args ...any) {
 	s.log(slog.LevelInfo, msg, args...)
 }
 
-func (s *Slog) Warn(msg string, args ...any) {
+func (s *slogLogger) Warn(msg string, args ...any) {
 	s.log(slog.LevelWarn, msg, args...)
 }
 
-func (s *Slog) Error(msg string, args ...any) {
+func (s *slogLogger) Error(msg string, args ...any) {
 	s.log(slog.LevelError, msg, args...)
 }
 
-func (s *Slog) Ctx(ctx context.Context) Logger {
+func (s *slogLogger) Ctx(ctx context.Context) Logger {
 	return WithContext(ctx, s)
 }

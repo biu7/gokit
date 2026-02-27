@@ -5,7 +5,7 @@ import (
 )
 
 func TestHelper(t *testing.T) {
-	l := NewSlog(LevelInfo, nil)
+	l := newSlogLogger(LevelInfo, nil)
 	l.Info("你好")
 
 	l = With(l,

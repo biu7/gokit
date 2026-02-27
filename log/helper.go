@@ -6,11 +6,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gin-gonic/gin"
 	"go.opentelemetry.io/otel/trace"
 )
 
-// Valuer is returns a log value.
+// Valuer returns a log value.
 type Valuer func(ctx context.Context) interface{}
 
 // Value return the function value.
@@ -27,12 +26,6 @@ func TraceID() Valuer {
 		if span := trace.SpanContextFromContext(ctx); span.HasTraceID() {
 			return span.TraceID().String()
 		}
-
-		if c, ok := ctx.(*gin.Context); ok {
-			if span := trace.SpanContextFromContext(c.Request.Context()); span.HasTraceID() {
-				return span.TraceID().String()
-			}
-		}
 		return ""
 	}
 }
@@ -42,12 +35,6 @@ func SpanID() Valuer {
 	return func(ctx context.Context) interface{} {
 		if span := trace.SpanContextFromContext(ctx); span.HasSpanID() {
 			return span.SpanID().String()
-		}
-
-		if c, ok := ctx.(*gin.Context); ok {
-			if span := trace.SpanContextFromContext(c.Request.Context()); span.HasSpanID() {
-				return span.SpanID().String()
-			}
 		}
 		return ""
 	}

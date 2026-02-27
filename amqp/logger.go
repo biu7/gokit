@@ -8,33 +8,33 @@ import (
 	"github.com/wagslane/go-rabbitmq"
 )
 
-var _ rabbitmq.Logger = (*Logger)(nil)
+var _ rabbitmq.Logger = (*logAdapter)(nil)
 
-type Logger struct {
+type logAdapter struct {
 	logger log.Logger
 }
 
-func NewLogger(logger log.Logger) rabbitmq.Logger {
-	return &Logger{logger: logger}
+func newLogAdapter(logger log.Logger) rabbitmq.Logger {
+	return &logAdapter{logger: logger}
 }
 
-func (l *Logger) Fatalf(format string, v ...interface{}) {
+func (l *logAdapter) Fatalf(format string, v ...interface{}) {
 	l.logger.Error("gorabbit: Fatal: " + fmt.Sprintf(format, v...))
 	os.Exit(1)
 }
 
-func (l *Logger) Errorf(format string, v ...interface{}) {
+func (l *logAdapter) Errorf(format string, v ...interface{}) {
 	l.logger.Error("gorabbit: Error: " + fmt.Sprintf(format, v...))
 }
 
-func (l *Logger) Warnf(format string, v ...interface{}) {
+func (l *logAdapter) Warnf(format string, v ...interface{}) {
 	l.logger.Warn("gorabbit: Warn: " + fmt.Sprintf(format, v...))
 }
 
-func (l *Logger) Infof(format string, v ...interface{}) {
+func (l *logAdapter) Infof(format string, v ...interface{}) {
 	l.logger.Info("gorabbit: Info: " + fmt.Sprintf(format, v...))
 }
 
-func (l *Logger) Debugf(format string, v ...interface{}) {
+func (l *logAdapter) Debugf(format string, v ...interface{}) {
 	l.logger.Debug("gorabbit: Debug: " + fmt.Sprintf(format, v...))
 }

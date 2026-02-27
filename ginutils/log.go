@@ -2,26 +2,24 @@ package ginutils
 
 import (
 	"bytes"
-	"github.com/biu7/gokit/ctxvalue"
-	"github.com/biu7/gokit/ginutils/response"
 	"io"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/biu7/gokit/ginutils/ctxvalue"
+	"github.com/biu7/gokit/ginutils/response"
+
 	"github.com/gin-gonic/gin"
 )
 
-type ValuerFunc func(c *gin.Context) (string, any)
+type LogFieldFunc func(c *gin.Context) (string, any)
 
-func (g *Middleware) Log(values ...ValuerFunc) gin.HandlerFunc {
+func (g *Middleware) Log(values ...LogFieldFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 
-		buf, err := io.ReadAll(c.Request.Body)
-		if err != nil {
-			return
-		}
+		buf, _ := io.ReadAll(c.Request.Body)
 		c.Request.Body = io.NopCloser(bytes.NewBuffer(buf))
 		c.Next()
 
@@ -94,9 +92,9 @@ func (g *Middleware) Cors() gin.HandlerFunc {
 			c.Header("Access-Control-Allow-Credentials", "true")
 		}
 
-		// 允许类型校验
 		if method == "OPTIONS" {
-			c.JSON(http.StatusOK, "ok!")
+			c.AbortWithStatus(http.StatusNoContent)
+			return
 		}
 		c.Next()
 	}

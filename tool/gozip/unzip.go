@@ -3,7 +3,6 @@ package gozip
 import (
 	"archive/zip"
 	"fmt"
-	"github.com/biu7/gokit/log"
 	"io"
 	"os"
 	"path/filepath"
@@ -13,13 +12,9 @@ import (
 func Unzip(input, output string) ([]string, error) {
 	archive, err := zip.OpenReader(input)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to open zip file: %w", err)
 	}
-	defer func() {
-		if closeErr := archive.Close(); closeErr != nil {
-			log.Default.Error("[unzip] close gozip file error", "error", err)
-		}
-	}()
+	defer archive.Close()
 
 	// 创建解压目标目录
 	if err = os.MkdirAll(output, 0755); err != nil {
@@ -61,22 +56,13 @@ func extractFile(output string, f *zip.File) error {
 	if err != nil {
 		return err
 	}
-	defer func() {
-		if closeErr := dstFile.Close(); closeErr != nil {
-			log.Default.Error("[unzip] close file error: ", "error", closeErr, "file", path)
-		}
-	}()
+	defer dstFile.Close()
 
-	// 读取文件内容
 	file, err := f.Open()
 	if err != nil {
 		return fmt.Errorf("failed to open file '%s': %w", f.Name, err)
 	}
-	defer func() {
-		if closeErr := file.Close(); closeErr != nil {
-			log.Default.Error("[unzip] close file error: ", "error", closeErr, "file", f.Name)
-		}
-	}()
+	defer file.Close()
 	_, err = io.Copy(dstFile, file)
 	if err != nil {
 		return err

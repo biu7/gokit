@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/biu7/gokit/log"
@@ -12,7 +13,7 @@ import (
 )
 
 type Publisher struct {
-	shutdown bool
+	shutdown atomic.Bool
 
 	conn       *rabbitmq.Conn
 	publishers *rabbitmq.Publisher
@@ -21,7 +22,7 @@ type Publisher struct {
 }
 
 func NewPublisher(conf *Config) (*Publisher, error) {
-	logger := NewLogger(log.Default)
+	logger := newLogAdapter(log.Default)
 	conn, err := rabbitmq.NewConn(
 		fmt.Sprintf("amqp://%s:%s@%s/%s", conf.Username, conf.Password, conf.Endpoint, conf.Vhost),
 		rabbitmq.WithConnectionOptionsLogging,
@@ -40,7 +41,7 @@ func NewPublisher(conf *Config) (*Publisher, error) {
 }
 
 func (r *Publisher) getExchangePublisher() (*rabbitmq.Publisher, error) {
-	if r.shutdown {
+	if r.shutdown.Load() {
 		return nil, errors.New("producer is shutdown")
 	}
 	if r.publishers != nil {
@@ -91,7 +92,7 @@ func (r *Publisher) Publish(data []byte, exchange string, keys []string, delay t
 }
 
 func (r *Publisher) Close() {
-	r.shutdown = true
+	r.shutdown.Store(true)
 	if r.publishers != nil {
 		r.publishers.Close()
 	}
@@ -103,5 +104,5 @@ func (r *Publisher) notifyPublish(p rabbitmq.Confirmation) {
 }
 
 func (r *Publisher) notifyReturn(p rabbitmq.Return) {
-	log.Warn("[AMQP] NotifyReturn", "code", p.ReplyCode, "reason", p.ReplyText, "exchange", p.Exchange, "routing_key", p.RoutingKey, "body", string(p.Body))
+	r.log.Warnf("NotifyReturn code=%d reason=%s exchange=%s routing_key=%s body=%s", p.ReplyCode, p.ReplyText, p.Exchange, p.RoutingKey, string(p.Body))
 }
